@@ -66,7 +66,7 @@ def create_new_image(ID):
 
 ## Helper function for generating progress bars    
 # Print iterations progress
-def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
     total = len(iterable)
     # Progress Bar Printing Function
     def printProgressBar (iteration):

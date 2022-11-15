@@ -12,6 +12,7 @@ I've tried to make this as beginner friendly as possible.
 
 ## Dependancies
 - [Python 3](https://www.python.org/downloads/)
+- [Pillow 9.x](https://pillow.readthedocs.io/en/stable/) `pip install Pillow`
 
 ## Running the Example
 1. Clone the repository to your device, or [download the folder](https://github.com/andrewhstovell/Chia-NFT-Assembler-for-MintGarden-Bulk/archive/refs/heads/main.zip) and extract the contents.
