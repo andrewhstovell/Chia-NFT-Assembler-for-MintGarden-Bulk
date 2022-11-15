@@ -1,0 +1,2 @@
+When you are ready, delete the example components in this directory 
+and place your image components here.
