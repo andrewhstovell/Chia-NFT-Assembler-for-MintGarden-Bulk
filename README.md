@@ -1,4 +1,4 @@
-v1.0.0
+v1.1.0
 # Chia NFT Assembler for MintGarden Studio Bulk Minting 
 This script can be used to assemble simple layered .png images using weighted components,
 and create the metadata in the format required by [MintGarden.io](mintgarden.io)'s
@@ -64,6 +64,14 @@ mouth_weights = [30, 30, 20, 20]
 ```
 * Run the program, and generate your Images and Metadata
 * Run the program again until your batch of NFT's is just right!
+
+## Testing
+This is especially important if you have edited the code beyond what is presented in these instructions. 
+
+To double-check that every NFT has unique trait assignments in the metadata, 
+run `python duplicate_identifier.py`
+
+You should get 0 duplicates identified.
 
 ### Problems or need help?
 Feel free to create an issue ticket, i will try to address as soon as possible

@@ -8,7 +8,7 @@ import csv
 # Change these
 COLLECTION_NAME = "Super Duper Example Collection"
 COLLECTION_DESCRIPTION = "Super Duper Example NFT's"
-TOTAL_IMAGES = 100 # Number of random unique images you want to generate
+TOTAL_IMAGES = 1000 # Number of random unique images you want to generate
 
 all_images = [] # This is used to store the images as they are generated
 
@@ -38,7 +38,7 @@ mouth_weights = [30, 30, 20, 20]
 
 ## Generate Traits
 # A recursive function to generate unique image combinations
-def create_new_image(ID):
+def create_new_image():
     new_image = {}
     
     # For each trait category, select a random trait based on the weightings 
@@ -50,17 +50,9 @@ def create_new_image(ID):
     new_image["Mouth"] = random.choices(mouth, mouth_weights)[0]
     
     if (new_image in all_images):
-        return create_new_image(ID)
+        return create_new_image()
     else:
-        # File metadata to suit MintGarden Bulk Generator
-        # Feel free to change the values, do not change the keys.
-        file_data = {
-            "file": "%s.png" % (str(ID)),                        
-            "name": "%s #%s" % (COLLECTION_NAME, str(ID)),         
-            "description": "%s/%s %s" % (str(ID), str(TOTAL_IMAGES), COLLECTION_DESCRIPTION)  
-        }
-        file_data.update(new_image)
-        return file_data
+        return new_image
 
 
 
@@ -87,7 +79,7 @@ def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, 
 
 # Generate the unique combinations based on trait weightings
 for i in progressBar(range(TOTAL_IMAGES), prefix = 'Combining Images:', suffix = 'Complete', length = 32):
-    new_trait_image = create_new_image(i + 1)
+    new_trait_image = create_new_image()
     all_images.append(new_trait_image)
     
 ## Check the stats of the new images
@@ -141,9 +133,21 @@ print(nose_count)
 print(mouth_count, '\n')
 
 #### Generate Images and Metadata 
+# Add the file, name and description for each image
+for i in range(TOTAL_IMAGES):
+    # File metadata to suit MintGarden Bulk Generator
+    # Feel free to change the values, do not change the keys.
+    file_data = {
+        "file": "%s.png" % (str(i + 1)),                        
+        "name": "%s #%s" % (COLLECTION_NAME, str(i + 1)),         
+        "description": "%s/%s %s" % (str(i + 1), str(TOTAL_IMAGES), COLLECTION_DESCRIPTION)  
+    }
+    file_data.update(all_images[i])
+    all_images[i] = file_data
+
 # Note: Will delete existing files in Output Directory
 # This is a feature, for quick re-generation
-output_dir = f'./{COLLECTION_NAME}'
+output_dir = f'./collection'
 if (os.path.exists(output_dir)):
     try:
         files = glob.glob(output_dir)
@@ -156,7 +160,7 @@ else:
     os.mkdir(output_dir)
 
 # Create the metadata.csv file ready for the MintGarden Bulk minter
-metadata_file = open("./%s/metadata.csv" % (COLLECTION_NAME), 'w', newline='')
+metadata_file = open("./collection/metadata.csv", 'w', newline='')
 writer = csv.writer(metadata_file, delimiter =';')
 
 # Write the metadata headers
