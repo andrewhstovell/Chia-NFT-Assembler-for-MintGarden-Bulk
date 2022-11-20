@@ -19,6 +19,7 @@ writer.writerow(header)
 
 images_with_duplicates = 0
 images_requiring_reassignment = 0
+duplicate_traits_identified = []
 
 # Quick and dirty nested loop.
 # This is bad time efficiency O <= n^2
@@ -30,26 +31,28 @@ for x in range(len(rows)) :
     for trait in rows[x][3:]: # Ignore file, name and description (first three items) - as these are generally always unique.
         this_traits.append(trait)
 
-    # Compare this row against the rest of the rows
-    for y in range(len(rows) - x - 1):
-        other = y + x + 1
+    if (not (this_traits in duplicate_traits_identified)):
+        # Compare this row against the rest of the rows
+        for y in range(len(rows) - x - 1):
+            other = y + x + 1
 
-        other_traits = []
-        
-        for trait in rows[other][3:]:
-            other_traits.append(trait)
-        
-        if (this_traits == other_traits):
-            # A duplicate has been located
-            if (not duplicate_located_for_x):
-                duplicate_located_for_x = True
-                writer.writerow(rows[x])
-                images_with_duplicates += 1
+            other_traits = []
             
-            writer.writerow(rows[other])
-            images_requiring_reassignment += 1
-    if (duplicate_located_for_x):
-        writer.writerow([]) # Leave a space
+            for trait in rows[other][3:]:
+                other_traits.append(trait)
+            
+            if (this_traits == other_traits):
+                # A duplicate has been located
+                if (not duplicate_located_for_x):
+                    duplicate_located_for_x = True
+                    writer.writerow(rows[x])
+                    images_with_duplicates += 1
+                
+                writer.writerow(rows[other])
+                images_requiring_reassignment += 1
+        if (duplicate_located_for_x):
+            writer.writerow([]) # Leave a space
+            duplicate_traits_identified.append(this_traits)
             
 f.close()
 
