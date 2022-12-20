@@ -1,8 +1,8 @@
+from dataclasses import dataclass
+from shutil import rmtree
+from os import path, mkdir
 from PIL import Image 
-from IPython.display import display 
 import random
-import os
-import glob
 import csv
 
 # Change these
@@ -11,43 +11,57 @@ COLLECTION_DESCRIPTION = "Super Duper Example NFT's"
 TOTAL_IMAGES = 1000 # Number of random unique images you want to generate
 
 all_images = [] # This is used to store the images as they are generated
+OUTPUT_DIR = f'./collection'
+
+# Each image is made up a series of traits
+@dataclass
+class Trait:
+    name: str
+    variants: list[str]
+    weights: list[int]
 
 # Each image is made up a series of traits
 # Make sure these traits match your component file names
 # e.g., 'Pink' for Pink.png
 # The weightings for each trait drive the rarity and add up to 100%
-background = ["Pink", "Teal", "Lime", "Cream"]
-background_weights = [30, 20, 10, 40] 
+# Note traits in this list must be in order of Layer. I.e., Background first, Foreground last.
+traits = [
+    Trait(
+        "Background", 
+        ["Pink", "Teal", "Lime", "Cream"], 
+        [30, 20, 10, 40]), # 30% + 20% + 10% + 40% = 100%
+    Trait(
+        "Feature", 
+        ["House", "Tree", "Sun", "Moon"], 
+        [15, 35, 35, 15]),
+    Trait(
+        "Face", 
+        ["Round", "Square", "Triangle"], 
+        [30, 50, 20]),
+    Trait(
+        "Eyes", 
+        ["Blue", "Red", "Brown"], 
+        [30, 10, 60]),
+    Trait(
+        "Nose", 
+        ["Pointy", "Rounded", "Dots"], 
+        [30 , 30 , 40]),
+    Trait(
+        "Mouth", 
+        ["Smile", "Grumpy", "Neutral", "Cute"], 
+        [30, 30, 20, 20]),
+]
 
-feature = ["House", "Tree", "Sun", "Moon"]
-feature_weights = [15, 35, 35, 15] 
-
-face = ["Round", "Square", "Triangle"]
-face_weights = [30, 50, 20]
-
-eyes = ["Blue", "Red", "Brown"]
-eyes_weights = [30, 10, 60]
-
-nose = ["Pointy", "Rounded", "Dots"]
-nose_weights = [30 , 30 , 40]
-
-mouth = ["Smile", "Grumpy", "Neutral", "Cute"]
-mouth_weights = [30, 30, 20, 20]
-
-## For a Simple project you should only need to change values above here
+## For a Simple project you should only need to change values above this line
 
 ## Generate Traits
 # A recursive function to generate unique image combinations
 def create_new_image():
     new_image = {}
     
-    # For each trait category, select a random trait based on the weightings 
-    new_image["Background"] = random.choices(background, background_weights)[0]
-    new_image["Feature"] = random.choices(feature, feature_weights)[0]
-    new_image["Face"] = random.choices(face, face_weights)[0]
-    new_image["Eyes"] = random.choices(eyes, eyes_weights)[0]
-    new_image["Nose"] = random.choices(nose, nose_weights)[0]
-    new_image["Mouth"] = random.choices(mouth, mouth_weights)[0]
+    # For each trait category, select a random trait based on the weightings
+    for trait in traits:
+        new_image[trait.name] = random.choices(trait.variants, trait.weights)[0]
     
     if (new_image in all_images):
         return create_new_image()
@@ -60,18 +74,22 @@ def create_new_image():
 # Print iterations progress
 def progressBar(iterable, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
     total = len(iterable)
+    
     # Progress Bar Printing Function
     def printProgressBar (iteration):
         percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
         filledLength = int(length * iteration // total)
         bar = fill * filledLength + '-' * (length - filledLength)
         print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+        
     # Initial Call
     printProgressBar(0)
+    
     # Update Progress Bar
     for i, item in enumerate(iterable):
         yield item
         printProgressBar(i + 1)
+        
     # Print New Line on Complete
     print()
 
@@ -82,6 +100,8 @@ for i in progressBar(range(TOTAL_IMAGES), prefix = 'Combining Images:', suffix =
     new_trait_image = create_new_image()
     all_images.append(new_trait_image)
     
+    
+    
 ## Check the stats of the new images
 # Returns true if all images are unique
 def all_images_unique(all_images):
@@ -90,47 +110,6 @@ def all_images_unique(all_images):
 
 print("Are all images unique? %s" % (all_images_unique(all_images)))
 
-# Get Trait Counts
-background_count = {}
-for item in background:
-    background_count[item] = 0
-    
-feature_count = {}
-for item in feature:
-    feature_count[item] = 0
-
-face_count = {}
-for item in face:
-    face_count[item] = 0
-    
-eyes_count = {}
-for item in eyes:
-    eyes_count[item] = 0
-    
-nose_count = {}
-for item in nose:
-    nose_count[item] = 0
-    
-mouth_count = {}
-for item in mouth:
-    mouth_count[item] = 0
-    
-
-for image in all_images:
-    background_count[image["Background"]] += 1
-    feature_count[image["Feature"]] += 1
-    face_count[image["Face"]] += 1
-    mouth_count[image["Mouth"]] += 1
-    eyes_count[image["Eyes"]] += 1
-    nose_count[image["Nose"]] += 1
-
-print("\nTrait tally:")
-print(background_count)
-print(feature_count)
-print(face_count)
-print(eyes_count)
-print(nose_count)
-print(mouth_count, '\n')
 
 #### Generate Images and Metadata 
 # Add the file, name and description for each image
@@ -145,19 +124,13 @@ for i in range(TOTAL_IMAGES):
     file_data.update(all_images[i])
     all_images[i] = file_data
 
+
 # Note: Will delete existing files in Output Directory
 # This is a feature, for quick re-generation
-output_dir = f'./collection'
-if (os.path.exists(output_dir)):
-    try:
-        files = glob.glob(output_dir)
-        for f in files:
-            if (f != output_dir):
-                os.remove(f)
-    except Exception as e:
-        print("Failed to delete files in output directory. Reason: %s" % (e))
-else:
-    os.mkdir(output_dir)
+if path.isdir(OUTPUT_DIR):
+    rmtree(OUTPUT_DIR)
+mkdir(OUTPUT_DIR)
+
 
 # Create the metadata.csv file ready for the MintGarden Bulk minter
 metadata_file = open("./collection/metadata.csv", 'w', newline='')
@@ -167,27 +140,24 @@ writer = csv.writer(metadata_file, delimiter =';')
 writer.writerow(all_images[0].keys())
 
 # Create the .png files
-for item in progressBar(all_images, prefix = 'Assembling Images & Metadata:', suffix = 'Complete', length = 20):
-    im1 = Image.open(f'./components/{item["Background"]}.png').convert('RGBA')
-    im2 = Image.open(f'./components/{item["Feature"]}.png').convert('RGBA')
-    im3 = Image.open(f'./components/{item["Face"]}.png').convert('RGBA')
-    im4 = Image.open(f'./components/{item["Eyes"]}.png').convert('RGBA')
-    im5 = Image.open(f'./components/{item["Nose"]}.png').convert('RGBA')
-    im6 = Image.open(f'./components/{item["Mouth"]}.png').convert('RGBA')
+for image in progressBar(all_images, prefix = 'Assembling Images & Metadata:', suffix = 'Complete', length = 20):
+    layers = []
 
-    #Create each composite
-    com1 = Image.alpha_composite(im1, im2)
-    com2 = Image.alpha_composite(com1, im3)
-    com3 = Image.alpha_composite(com2, im4)
-    com4 = Image.alpha_composite(com3, im5)
-    com5 = Image.alpha_composite(com4, im6)
+    # Load each of the Images Layers
+    for trait in traits:
+        layers.append(Image.open(f'./components/{image[trait.name]}.png').convert('RGBA'))
+
+    # Create the composite
+    composite = Image.alpha_composite(layers[0], layers[1])
+    for next_layer in layers[2:]:
+        composite = Image.alpha_composite(composite, next_layer)
 
     #Convert to RGB
-    rgb_im = com5.convert('RGB')
-    rgb_im.save(output_dir + "/" + item["file"])
+    rgb_im = composite.convert('RGB')
+    rgb_im.save(OUTPUT_DIR + "/" + image["file"])
 
     # Write the metadata for this item to metadata.csv
-    writer.writerow(item.values())
+    writer.writerow(image.values())
 
 metadata_file.close()
 
