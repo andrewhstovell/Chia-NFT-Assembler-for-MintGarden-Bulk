@@ -1,4 +1,4 @@
-v1.1.0
+v1.1.1
 # Chia NFT Assembler for MintGarden Studio Bulk Minting 
 This script can be used to assemble simple layered .png images using weighted components,
 and create the metadata in the format required by [MintGarden.io](mintgarden.io)'s
@@ -8,6 +8,7 @@ I've tried to make this as beginner friendly as possible.
 
 #### Disclaimer:
 * I am not affiliated with MintGarden.io
+* This software is provided as is, i take no liability for any aspect of your project.
 
 
 ## Dependancies
@@ -44,23 +45,34 @@ TOTAL_IMAGES = 100 # Number of random unique images you want to generate
 4. Adjust corresponding weights accordingly (lower = rarer)
 ```
 # The weightings for each trait drive the rarity and add up to 100%
-background = ["Pink", "Teal", "Lime", "Cream"]
-background_weights = [30, 20, 10, 40] 
-
-feature = ["House", "Tree", "Sun", "Moon"]
-feature_weights = [15, 35, 35, 15] 
-
-face = ["Round", "Square", "Triangle"]
-face_weights = [30, 50, 20]
-
-eyes = ["Blue", "Red", "Brown"]
-eyes_weights = [30, 10, 60]
-
-nose = ["Pointy", "Rounded", "Dots"]
-nose_weights = [30 , 30 , 40]
-
-mouth = ["Smile", "Grumpy", "Neutral", "Cute"]
-mouth_weights = [30, 30, 20, 20]
+# Note traits in this list must be in order of Layer. 
+# I.e., Background first, Foreground last.
+traits = [
+    Trait(
+        "Background", 
+        ["Pink", "Teal", "Lime", "Cream"], 
+        [30, 20, 10, 40]), # 30% + 20% + 10% + 40% = 100%
+    Trait(
+        "Feature", 
+        ["House", "Tree", "Sun", "Moon"], 
+        [15, 35, 35, 15]),
+    Trait(
+        "Face", 
+        ["Round", "Square", "Triangle"], 
+        [30, 50, 20]),
+    Trait(
+        "Eyes", 
+        ["Blue", "Red", "Brown"], 
+        [30, 10, 60]),
+    Trait(
+        "Nose", 
+        ["Pointy", "Rounded", "Dots"], 
+        [30 , 30 , 40]),
+    Trait(
+        "Mouth", 
+        ["Smile", "Grumpy", "Neutral", "Cute"], 
+        [30, 30, 20, 20]),
+]
 ```
 * Run the program, and generate your Images and Metadata
 * Run the program again until your batch of NFT's is just right!
